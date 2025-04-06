@@ -117,4 +117,27 @@ public class ApiTestService {
                 .then();
     }
 
+    public Mono<Void> executeRealNonBlockingRequests() {
+        LocalDateTime startTime = LocalDateTime.now();
+        log.info("# 요청 시작 시간: {}", startTime.format(formatter));
+
+        return Flux.range(1, 5)
+                .flatMap(i ->
+                        webClient.get()
+                                .uri("/delay/5")
+                                .retrieve()
+                                .bodyToMono(String.class)
+                                .map(response -> {
+                                    LocalDateTime responseTime = LocalDateTime.now();
+                                    log.info("{}: 스레드 {} (응답 길이: {})",
+                                            responseTime.format(formatter),
+                                            i,
+                                            response.length());
+                                    return i;
+                                })
+                )
+                .then();
+    }
+
+
 }
