@@ -9,6 +9,8 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @Slf4j
@@ -16,6 +18,7 @@ import java.time.Instant;
 public class ApiTestService {
     private final RestTemplate restTemplate;
     private final WebClient webClient;
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
     // Blocking IO
     public String callApiBlocking() {
@@ -27,6 +30,25 @@ public class ApiTestService {
         return "Blocking API 호출 완료: " + elapsedTime + "ms (응답 길이: " +
                 (response != null ? response.length() : 0) + ")";
     }
+
+    // 요청 시간 확인
+    public void executeBlockingRequests() {
+        LocalDateTime startTime = LocalDateTime.now();
+        log.info("# 요청 시작 시간: {}", startTime.format(formatter));
+
+        for (int i = 1; i <= 5; i++) {
+            try {
+                Thread.sleep(5000);
+
+                LocalDateTime responseTime = LocalDateTime.now();
+                log.info("{}: API CALL : CALL TIME {}", responseTime.format(formatter), i);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Thread interrupted", e);
+            }
+        }
+    }
+
 
     // Non-Blocking IO
     public Mono<String> callApiNonBlocking() {
