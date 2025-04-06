@@ -43,4 +43,19 @@ public class ApiTestService {
                             response.length() + ")";
                 });
     }
+    //병렬로 실행
+    public Mono<String> callMultipleApisInParallel() {
+        Instant start = Instant.now();
+
+        // 여러 API를 동시에 호출
+        Mono<String> call1 = webClient.get().uri("/delay/1").retrieve().bodyToMono(String.class);
+        Mono<String> call2 = webClient.get().uri("/delay/1").retrieve().bodyToMono(String.class);
+        Mono<String> call3 = webClient.get().uri("/delay/1").retrieve().bodyToMono(String.class);
+
+        return Mono.zip(call1, call2, call3)
+                .map(responses -> {
+                    long elapsedTime = Duration.between(start, Instant.now()).toMillis();
+                    return "3개의 병렬 API 호출 완료: " + elapsedTime + "ms";
+                });
+    }
 }
