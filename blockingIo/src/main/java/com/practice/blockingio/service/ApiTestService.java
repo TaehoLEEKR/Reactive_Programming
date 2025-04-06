@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -97,4 +98,23 @@ public class ApiTestService {
                     return "3개의 병렬 API 호출 완료: " + elapsedTime + "ms";
                 });
     }
+
+    public Mono<Void> executeNonBlockingRequests() {
+        LocalDateTime startTime = LocalDateTime.now();
+        log.info("# 요청 시작 시간: {}", startTime.format(formatter));
+
+        return Flux.range(1, 5)
+                .flatMap(i -> {
+                    // 5초 지연을 가진 가상의 비동기 작업
+                    return Mono.delay(Duration.ofSeconds(5))
+                            .map(ignored -> {
+                                LocalDateTime responseTime = LocalDateTime.now();
+                                log.info("{}: 시간 : 스레드 {}",
+                                        responseTime.format(formatter), i);
+                                return i;
+                            });
+                })
+                .then();
+    }
+
 }
