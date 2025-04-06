@@ -28,5 +28,19 @@ public class ApiTestService {
                 (response != null ? response.length() : 0) + ")";
     }
 
+    // Non-Blocking IO
+    public Mono<String> callApiNonBlocking() {
+        Instant start = Instant.now();
 
+        // WebClient는 비동기식(Non-Blocking) HTTP 클라이언트
+        return webClient.get()
+                .uri("/delay/1")
+                .retrieve()
+                .bodyToMono(String.class)
+                .map(response -> {
+                    long elapsedTime = Duration.between(start, Instant.now()).toMillis();
+                    return "Non-Blocking API 호출 완료: " + elapsedTime + "ms (응답 길이: " +
+                            response.length() + ")";
+                });
+    }
 }
