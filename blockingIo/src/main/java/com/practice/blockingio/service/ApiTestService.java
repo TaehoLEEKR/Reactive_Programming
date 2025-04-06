@@ -49,6 +49,23 @@ public class ApiTestService {
         }
     }
 
+    public void executeRealBlockingRequests() {
+        LocalDateTime startTime = LocalDateTime.now();
+        log.info("# 요청 시작 시간: {}", startTime.format(formatter));
+
+        // 5개의 실제 API 요청을 순차적으로 처리
+        for (int i = 1; i <= 5; i++) {
+            String response = restTemplate.getForObject("https://httpbin.org/delay/5", String.class);
+
+            LocalDateTime responseTime = LocalDateTime.now();
+            log.info("{}: 스레드 {} (응답 길이: {})",
+                    responseTime.format(formatter),
+                    i,
+                    response != null ? response.length() : 0);
+        }
+    }
+
+
 
     // Non-Blocking IO
     public Mono<String> callApiNonBlocking() {
